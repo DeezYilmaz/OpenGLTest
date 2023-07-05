@@ -2,12 +2,17 @@
 #include "OpenGL_Libraries/Include/glad/glad.h"
 #include "OpenGL_Libraries/Include/glfw3.h"
 #include <iostream>
+using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
+void processInput(GLFWwindow* window);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
+
+double MouseX = 0;
+double MouseY = 0 ;
 int main()
 {
     glfwInit();
@@ -35,8 +40,16 @@ int main()
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+
 
     while (!glfwWindowShouldClose(window)) {
+
+        processInput(window);
+
+        glClearColor(MouseX, MouseY, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -44,6 +57,31 @@ int main()
     glfwTerminate();
     return 0;
 }
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+        MouseX = 0.3f;
+        MouseY = 0.2f;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) 
+        glfwSetWindowShouldClose(window, true);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        double xpos, ypos;
+        //getting cursor position
+        glfwGetCursorPos(window, &xpos, &ypos);
+        MouseX = xpos/WINDOW_WIDTH;
+        MouseY = ypos/WINDOW_HEIGHT;
+    }
 }

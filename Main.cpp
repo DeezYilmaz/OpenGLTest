@@ -47,7 +47,6 @@ int main()
 		0.5f,0.0f,0.0f,
 	   -0.5f,0.f,0.6f,
 		0.f,0.9f,-0.2f,
-		0.f,0.2f,-0.8f,
 	};
 
 	unsigned int VBO;

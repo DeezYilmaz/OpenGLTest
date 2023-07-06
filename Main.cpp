@@ -1,4 +1,5 @@
 
+
 #include "OpenGL_Libraries/Include/glad/glad.h"
 #include "OpenGL_Libraries/Include/glfw3.h"
 #include <iostream>
@@ -49,6 +50,12 @@ int main()
 		0.f,0.9f,-0.2f,
 	};
 
+	//------------GENERATE VAO-----------
+	unsigned int VAO;
+	glGenVertexArrays(1, &VAO);
+
+	glBindVertexArray(VAO);
+	//------------------------------
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -100,13 +107,42 @@ int main()
 		std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 	//----------------------------
+	//---------------CREATE PROGRAM-------------
+	unsigned int shaderProgram;
+	shaderProgram = glCreateProgram();
 
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	glLinkProgram(shaderProgram);
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+	if (!success) {
+		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+	}
+
+	//glUseProgram(shaderProgram);
+
+	//glDeleteShader(vertexShader);
+	//glDeleteShader(fragmentShader);
+
+	//----------VERTEX ATTRIBUTES---------
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+
+	//-----------------------------------
 	while (!glfwWindowShouldClose(window)) {
 
 		processInput(window);
 
 		glClearColor(MouseX, MouseY, 0.3f, 1.0f);
+		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shaderProgram);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

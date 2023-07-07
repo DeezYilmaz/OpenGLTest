@@ -4,12 +4,16 @@
 #include "OpenGL_Libraries/Include/glfw3.h"
 #include <iostream>
 #include "Shader_s.h"
+
+#include <math.h>
+
+#include <fstream>
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+void updateRotation(float* angle, int rotationMatrixUNi);
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
 
@@ -42,15 +46,23 @@ int main()
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-	glfwSetMouseButtonCallback(window, mouse_button_callback);
-
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 	float vertices[] = {
-		//position		//colour
-		0.5f,0.0f,0.0f,  0.f, 1.f,0.f,
-	   -0.5f,0.f,0.f,	 0.f, 0.f,1.f,
-		0.f,0.5f,-0.f,  1.f, 0.f,0.f,
+		-0.25f,-0.25f,0.25f, 1.0f, 0.f, 0.f,
+		 0.25f,-0.25f,0.25f, 1.0f, 0.f, 0.f,
+		 0.25f, 0.25f,0.25f, 1.0f, 0.f, 0.f,
+
+
+		-0.25f,-0.25f,0.25f, 1.0f, 0.f, 0.f,
+		-0.25f,0.25f,0.25f,  1.0f, 0.f, 0.f,
+		 0.25f, 0.25f,0.25f, 1.0f, 0.f, 0.f,
+
+		
+		
+
 	};
+
 
 	//------------GENERATE VAO-----------
 	unsigned int VAO;
@@ -68,12 +80,9 @@ int main()
 	//------------LINK SHADER-------------
 
 	Shader ourShader("Vertex.vs", "Fragment.f");
+
+
 	//---------------CREATE PROGRAM-------------
-
-	//glUseProgram(shaderProgram);
-
-	//glDeleteShader(vertexShader);
-	//glDeleteShader(fragmentShader);
 	ourShader.use();
 	//----------VERTEX ATTRIBUTES---------
 
@@ -82,16 +91,29 @@ int main()
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	//-----------------------------------
+	//----------------UNIFORMS-------------
+	float angle = 0;
+
+	int MousePosUni = glGetUniformLocation(ourShader.ID, "MousePos");
+
+	
+	int rotationMatrixUNi = glGetUniformLocation(ourShader.ID, "rotationMatrix");
+
+	//-------------------------------
 	while (!glfwWindowShouldClose(window)) {
 
 		processInput(window);
+
+		glUniform2f(MousePosUni, MouseX, MouseY);
+
+		updateRotation(&angle, rotationMatrixUNi);
+		
 
 		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 
 		glfwSwapBuffers(window);
@@ -102,6 +124,19 @@ int main()
 	return 0;
 }
 
+void updateRotation(float* angle, int rotationMatrixUNi) {
+	*angle += 0.1f;
+	float ZrotationMat[] = { cos(*angle),-sin(*angle),0,
+						sin(*angle), cos(*angle),0,
+						0,			0,		   1
+	};
+	float YrotationMat[] = { cos(*angle),0, sin(*angle),
+							 0,			 1,     0,					
+							 sin(*angle),0, cos(*angle),
+	};
+
+	glUniformMatrix3fv(rotationMatrixUNi, 1, true, YrotationMat);
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
@@ -118,14 +153,9 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, true);
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-	{
-		double xpos, ypos;
-		//getting cursor position
-		glfwGetCursorPos(window, &xpos, &ypos);
+	
 		MouseX = xpos / WINDOW_WIDTH;
 		MouseY = ypos / WINDOW_HEIGHT;
-	}
 }

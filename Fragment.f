@@ -1,10 +1,12 @@
 #version 330 core 
 
-out vec4 FragColor; 
 
 in vec3 color;
+uniform vec2 MousePos;
+out vec4 FragColor; 
+
 
 void main()
 { 
-	FragColor = vec4(color.x,color.y,color.z, 1.0f); 
+	FragColor = vec4(color.x,MousePos.x,MousePos.y, 1.0f); 
 }

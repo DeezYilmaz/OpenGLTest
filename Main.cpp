@@ -11,7 +11,7 @@
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window,glm::mat4 *trans);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 const int WINDOW_HEIGHT = 600;
@@ -125,26 +125,32 @@ int main()
 
 	//----------------UNIFORMS-------------
 	
-
+	int transfromUni = glGetUniformLocation(ourShader.ID, "transform");
 	int MousePosUni = glGetUniformLocation(ourShader.ID, "MousePos");
 
+
+	glm::mat4 trans = glm::mat4(1.0f);
 
 
 	glEnable(GL_DEPTH_TEST);
 	//-------------------------------
 	while (!glfwWindowShouldClose(window)) {
 
-		processInput(window);
+		processInput(window,&trans);
+
+		float speed = 5;
+
+		trans = glm::rotate(glm::mat4(1.0f), glm::radians((0.5f-(float)MouseX)*30), glm::vec3(0.0, 1.0, 0.0));
+		trans = glm::rotate(trans, glm::radians((0.5f-(float)MouseY)*30), glm::vec3(1.0, 0.0, 0.0));
 
 		glUniform2f(MousePosUni, MouseX, MouseY);
-
-
-
+		glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(trans));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 
 
 		glfwSwapBuffers(window);
@@ -159,11 +165,23 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window,glm::mat4 *trans)
 {
-
-
-	//if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) 
+	float speed = 5;
+	/*
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(1.0, 0.0, 0.0));
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(-1.0, 0.0, 0.0));
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 1.0, 0.0));
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0,-1.0, 0.0));
+	*/
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, 1.0));
+	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, -1.0));
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -171,7 +189,6 @@ void processInput(GLFWwindow* window)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-
 	MouseX = xpos / WINDOW_WIDTH;
 	MouseY = ypos / WINDOW_HEIGHT;
 }

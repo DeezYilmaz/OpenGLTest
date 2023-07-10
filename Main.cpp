@@ -4,10 +4,11 @@
 #include "OpenGL_Libraries/Include/glfw3.h"
 #include <iostream>
 #include "Shader_s.h"
+#include <stb_image.h>
 
-	#include <math.h>
-	#include <glm/gtc/matrix_transform.hpp>
-	#include <glm/gtc/type_ptr.hpp>
+#include <math.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -50,76 +51,83 @@ int main()
 
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
-
+	
 	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
-
+	
 	//------------GENERATE VAO-----------
 	unsigned int VAO;
 	glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
-	//------------------------------
+	//------------GENERATE VBO-----------
 	unsigned int VBO;
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	
+
+	////-----------GENERATE EBO------------
+	/*unsigned int EBO;
+	glGenBuffers(1, &EBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
 
 
 	//------------LINK SHADER-------------
 
-	Shader ourShader("Vertex.vs", "Fragment.f");
+	Shader ourShader("Vertex.vs", "Fragment.frag");
 
 
 	//---------------CREATE PROGRAM-------------
 	ourShader.use();
 	//----------VERTEX ATTRIBUTES---------
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
@@ -127,14 +135,49 @@ int main()
 	
 	int transfromUni = glGetUniformLocation(ourShader.ID, "transform");
 	int MousePosUni = glGetUniformLocation(ourShader.ID, "MousePos");
+	int textureUni = glGetUniformLocation(ourShader.ID, "ourTexture");
 
+	//----------------GENERATE TEXTURE---------------
+
+
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
+
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load("textures\\brick.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+
+	stbi_image_free(data);
+	glUniform1i(textureUni, 0);
+
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	//-------------------------------
 
 	glm::mat4 trans = glm::mat4(1.0f);
-
-
 	glEnable(GL_DEPTH_TEST);
-	//-------------------------------
+
+
 	while (!glfwWindowShouldClose(window)) {
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
 
 		processInput(window,&trans);
 
@@ -143,14 +186,13 @@ int main()
 		trans = glm::rotate(glm::mat4(1.0f), glm::radians((0.5f-(float)MouseX)*30), glm::vec3(0.0, 1.0, 0.0));
 		trans = glm::rotate(trans, glm::radians((0.5f-(float)MouseY)*30), glm::vec3(1.0, 0.0, 0.0));
 
+
 		glUniform2f(MousePosUni, MouseX, MouseY);
 		glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(trans));
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
 		glBindVertexArray(VAO);
+		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT,0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-
 
 
 		glfwSwapBuffers(window);

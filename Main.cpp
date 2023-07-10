@@ -21,8 +21,9 @@ const int WINDOW_WIDTH = 800;
 double MouseX = 0;
 double MouseY = 0;
 
-
-
+int transfromUni;
+int MousePosUni;
+int textureUni;
 int main()
 {
 	glfwInit();
@@ -119,7 +120,7 @@ int main()
 
 	//------------LINK SHADER-------------
 
-	Shader ourShader("Vertex.vs", "Fragment.frag");
+	Shader ourShader("Vertex.vert", "Fragment.frag");
 
 
 	//---------------CREATE PROGRAM-------------
@@ -133,9 +134,9 @@ int main()
 
 	//----------------UNIFORMS-------------
 	
-	int transfromUni = glGetUniformLocation(ourShader.ID, "transform");
-	int MousePosUni = glGetUniformLocation(ourShader.ID, "MousePos");
-	int textureUni = glGetUniformLocation(ourShader.ID, "ourTexture");
+	transfromUni = glGetUniformLocation(ourShader.ID, "transform");
+	MousePosUni = glGetUniformLocation(ourShader.ID, "MousePos");
+	textureUni = glGetUniformLocation(ourShader.ID, "ourTexture");
 
 	//----------------GENERATE TEXTURE---------------
 
@@ -170,9 +171,11 @@ int main()
 	glBindTexture(GL_TEXTURE_2D, texture);
 	//-------------------------------
 
-	glm::mat4 trans = glm::mat4(1.0f);
 	glEnable(GL_DEPTH_TEST);
 
+	float speed = 5;
+
+	glm::mat4 trans = glm::mat4(1.0f);
 
 	while (!glfwWindowShouldClose(window)) {
 
@@ -180,20 +183,8 @@ int main()
 		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
 
 		processInput(window,&trans);
-
-		float speed = 5;
-
-		trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, -5.f));
-		trans = glm::rotate(trans, glm::radians((0.5f-(float)MouseX)*30), glm::vec3(0.0, 1.0, 0.0));
-		trans = glm::rotate(trans, glm::radians((0.5f-(float)MouseY)*30), glm::vec3(1.0, 0.0, 0.0));
-
-
-		glm::mat4 pers = glm::perspective(glm::radians(45.0f), 800.f / 600.f, 0.1f, 100.0f);
-
-		glm::mat4 result = pers*trans;
-
-		glUniform2f(MousePosUni, MouseX, MouseY);
-		glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(result));
+		
+		
 
 		glBindVertexArray(VAO);
 		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT,0);
@@ -215,26 +206,40 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window,glm::mat4 *trans)
 {
 	float speed = 5;
-	/*if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(1.0, 0.0, 0.0));
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		*trans = glm::translate(*trans, glm::vec3(0.f, 0.f, -0.1f));
 
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(-1.0, 0.0, 0.0));
+		*trans = glm::translate(*trans, glm::vec3(0.f, 0.f, 0.1f));
 
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(0.0, 1.0, 0.0));
+		*trans = glm::translate(*trans, glm::vec3(-0.1f, 0.f, 0.f));
 
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(0.0,-1.0, 0.0));
+		*trans = glm::translate(*trans, glm::vec3(0.1f, 0.f, 0.f));
 
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, 1.0));
 
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, -1.0));*/
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, -1.0));
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+
+
+	glm::mat4 rotat = glm::rotate(*trans, glm::radians(-(0.5f - (float)MouseX) * 30), glm::vec3(0.0, 1.0, 0.0));
+	rotat = glm::rotate(rotat, glm::radians(-(0.5f - (float)MouseY) * 30), glm::vec3(1.0, 0.0, 0.0));
+
+
+
+	glm::mat4 pers = glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 100.f);
+
+	glm::mat4 result = pers * rotat;
+
+	glUniform2f(MousePosUni, MouseX, MouseY);
+	glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(result));
+
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)

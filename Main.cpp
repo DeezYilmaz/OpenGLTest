@@ -151,7 +151,7 @@ int main()
 	// load and generate the texture
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("textures\\brick.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("textures\\container.jpg", &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -183,12 +183,17 @@ int main()
 
 		float speed = 5;
 
-		trans = glm::rotate(glm::mat4(1.0f), glm::radians((0.5f-(float)MouseX)*30), glm::vec3(0.0, 1.0, 0.0));
+		trans = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0.f, -5.f));
+		trans = glm::rotate(trans, glm::radians((0.5f-(float)MouseX)*30), glm::vec3(0.0, 1.0, 0.0));
 		trans = glm::rotate(trans, glm::radians((0.5f-(float)MouseY)*30), glm::vec3(1.0, 0.0, 0.0));
 
 
+		glm::mat4 pers = glm::perspective(glm::radians(45.0f), 800.f / 600.f, 0.1f, 100.0f);
+
+		glm::mat4 result = pers*trans;
+
 		glUniform2f(MousePosUni, MouseX, MouseY);
-		glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(trans));
+		glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(result));
 
 		glBindVertexArray(VAO);
 		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT,0);
@@ -210,20 +215,23 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 void processInput(GLFWwindow* window,glm::mat4 *trans)
 {
 	float speed = 5;
-	/*
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(1.0, 0.0, 0.0));
+	/*if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(1.0, 0.0, 0.0));
+
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(-1.0, 0.0, 0.0));
+		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(-1.0, 0.0, 0.0));
+
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 1.0, 0.0));
+		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(0.0, 1.0, 0.0));
+
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0,-1.0, 0.0));
-	*/
+		*trans = glm::translate(*trans, glm::radians(speed), glm::vec3(0.0,-1.0, 0.0));
+
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
 		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, 1.0));
+
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, -1.0));
+		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, -1.0));*/
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);

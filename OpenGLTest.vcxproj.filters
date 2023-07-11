@@ -48,5 +48,8 @@
     <Image Include="textures\container.jpg">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="textures\emerald.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

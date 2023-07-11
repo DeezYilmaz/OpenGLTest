@@ -12,7 +12,7 @@
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-void processInput(GLFWwindow* window,glm::mat4 *trans);
+void processInput(GLFWwindow* window);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
 const int WINDOW_HEIGHT = 600;
@@ -24,6 +24,12 @@ double MouseY = 0;
 int transfromUni;
 int MousePosUni;
 int textureUni;
+
+glm::mat4 trans = glm::mat4(1.0f);
+glm::mat4 pers;
+glm::mat4 rotat;
+
+glm::mat4 result;
 int main()
 {
 	glfwInit();
@@ -152,10 +158,10 @@ int main()
 	// load and generate the texture
 
 	int width, height, nrChannels;
-	unsigned char* data = stbi_load("textures\\container.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("textures\\emerald.png", &width, &height, &nrChannels, 0);
 	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -173,16 +179,16 @@ int main()
 
 	glEnable(GL_DEPTH_TEST);
 
-	float speed = 5;
 
-	glm::mat4 trans = glm::mat4(1.0f);
 
+	pers = glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 100.f);
+	result = pers;
 	while (!glfwWindowShouldClose(window)) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(0.6f, 0.1f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-		processInput(window,&trans);
+		processInput(window);
 		
 		
 
@@ -203,39 +209,41 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window,glm::mat4 *trans)
+
+glm::mat4 matPT=pers;
+
+void processInput(GLFWwindow* window)
 {
 	float speed = 5;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::vec3(0.f, 0.f, -0.1f));
-
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::vec3(0.f, 0.f, 0.1f));
-
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::vec3(-0.1f, 0.f, 0.f));
-
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		*trans = glm::translate(*trans, glm::vec3(0.1f, 0.f, 0.f));
-
-	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, 1.0));
-
-	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-		*trans = glm::rotate(*trans, glm::radians(speed), glm::vec3(0.0, 0.0, -1.0));
-
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	bool moved = false;
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		trans = glm::translate(trans, glm::vec3(0.f, 0.f, -0.1f));
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+		trans = glm::translate(trans, glm::vec3(0.f, 0.f, 0.1f));
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
+		trans = glm::translate(trans, glm::vec3(-0.1f, 0.f, 0.f));
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
+		trans = glm::translate(trans, glm::vec3(0.1f, 0.f, 0.f));
+		moved = true;
+	}
+	
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
 		glfwSetWindowShouldClose(window, true);
-
-
-	glm::mat4 rotat = glm::rotate(*trans, glm::radians(-(0.5f - (float)MouseX) * 30), glm::vec3(0.0, 1.0, 0.0));
+	}
+	rotat = glm::rotate(trans, glm::radians(-(0.5f - (float)MouseX) * 30), glm::vec3(0.0, 1.0, 0.0));
 	rotat = glm::rotate(rotat, glm::radians(-(0.5f - (float)MouseY) * 30), glm::vec3(1.0, 0.0, 0.0));
 
+	if (moved) {
+		matPT = pers * trans;
+	}
+	result = matPT * rotat;
 
-
-	glm::mat4 pers = glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 100.f);
-
-	glm::mat4 result = pers * rotat;
 
 	glUniform2f(MousePosUni, MouseX, MouseY);
 	glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(result));

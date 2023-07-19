@@ -9,6 +9,8 @@
 #include <math.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Cube.h"
 using namespace std;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -25,11 +27,7 @@ int transfromUni;
 int MousePosUni;
 int textureUni;
 
-glm::mat4 trans = glm::mat4(1.0f);
-glm::mat4 pers;
-glm::mat4 rotat;
 
-glm::mat4 result;
 int main()
 {
 	glfwInit();
@@ -59,64 +57,11 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	
-	float vertices[] = {
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	///
 
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
 
 	
-	//------------GENERATE VAO-----------
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-
-	glBindVertexArray(VAO);
-	//------------GENERATE VBO-----------
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	
-
 	////-----------GENERATE EBO------------
 	/*unsigned int EBO;
 	glGenBuffers(1, &EBO);
@@ -124,6 +69,7 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
 
 
+	Cube cb;
 	//------------LINK SHADER-------------
 
 	Shader ourShader("Vertex.vert", "Fragment.frag");
@@ -132,12 +78,6 @@ int main()
 	//---------------CREATE PROGRAM-------------
 	ourShader.use();
 	//----------VERTEX ATTRIBUTES---------
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
 	//----------------UNIFORMS-------------
 	
 	transfromUni = glGetUniformLocation(ourShader.ID, "transform");
@@ -147,61 +87,67 @@ int main()
 	//----------------GENERATE TEXTURE---------------
 
 
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	// set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load and generate the texture
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load("textures\\emerald.png", &width, &height, &nrChannels, 0);
-	if (data)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-
-	stbi_image_free(data);
-	glUniform1i(textureUni, 0);
+	//unsigned int texture;
+	//glGenTextures(1, &texture);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//// set the texture wrapping/filtering options (on the currently bound texture object)
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//// load and generate the texture
 
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+
+	//int width, height, nrChannels;
+	//unsigned char* data = stbi_load("textures\\emerald.png", &width, &height, &nrChannels, 0);
+	//if (data)
+	//{
+	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	//	glGenerateMipmap(GL_TEXTURE_2D);
+	//}
+	//else
+	//{
+	//	std::cout << "Failed to load texture" << std::endl;
+	//}
+
+	//stbi_image_free(data);
+	//glUniform1i(textureUni, 0);
+
+
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, texture);
 	//-------------------------------
 
 	glEnable(GL_DEPTH_TEST);
 
 
+	glm::mat4 transformMatrix(1.0f);
 
-	pers = glm::perspective(glm::radians(45.f), 800.f / 600.f, 0.1f, 100.f);
-	result = pers;
+	glm::mat4 viewMatrix(1.0f);
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, 5.0f));
+	glm::mat4 projectionMatrix= glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+	transformMatrix = projectionMatrix * viewMatrix;
+
+	glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(transformMatrix));
+
+	//projection view model
+
 	while (!glfwWindowShouldClose(window)) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 		processInput(window);
-		
-		
 
-		glBindVertexArray(VAO);
-		//glDrawElements(GL_TRIANGLES, 6,GL_UNSIGNED_INT,0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		cb.draw();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
 
 	glfwTerminate();
+	system("pause");
 	return 0;
 }
 
@@ -210,44 +156,10 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 
-glm::mat4 matPT=pers;
 
 void processInput(GLFWwindow* window)
 {
-	float speed = 5;
-	bool moved = false;
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		trans = glm::translate(trans, glm::vec3(0.f, 0.f, -0.1f));
-		moved = true;
-	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-		trans = glm::translate(trans, glm::vec3(0.f, 0.f, 0.1f));
-		moved = true;
-	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-		trans = glm::translate(trans, glm::vec3(-0.1f, 0.f, 0.f));
-		moved = true;
-	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-		trans = glm::translate(trans, glm::vec3(0.1f, 0.f, 0.f));
-		moved = true;
-	}
 	
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS){
-		glfwSetWindowShouldClose(window, true);
-	}
-	rotat = glm::rotate(trans, glm::radians(-(0.5f - (float)MouseX) * 30), glm::vec3(0.0, 1.0, 0.0));
-	rotat = glm::rotate(rotat, glm::radians(-(0.5f - (float)MouseY) * 30), glm::vec3(1.0, 0.0, 0.0));
-
-	if (moved) {
-		matPT = pers * trans;
-	}
-	result = matPT * rotat;
-
-
-	glUniform2f(MousePosUni, MouseX, MouseY);
-	glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(result));
-
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)

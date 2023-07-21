@@ -9,7 +9,7 @@ out vec3 color;
 
 void main()
 {	
-	gl_Position = vec4(aPos+vec3(0f,0f,0.2f),1.0f);
+	gl_Position = transform*vec4(aPos,1.0f);
 	color=vec3(1.f,0.f,0.f);	
     TexCoord = aTexture;
 }

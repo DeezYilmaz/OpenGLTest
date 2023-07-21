@@ -1,7 +1,7 @@
 
 
-#include "OpenGL_Libraries/Include/glad/glad.h"
-#include "OpenGL_Libraries/Include/glfw3.h"
+#include "glad/glad.h"
+#include "glfw3.h"
 #include <iostream>
 #include "Shader_s.h"
 #include <stb_image.h>
@@ -58,18 +58,9 @@ int main()
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	
 
-	///
-
-
-	
-	////-----------GENERATE EBO------------
-	/*unsigned int EBO;
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
-
 
 	Cube cb;
+
 	//------------LINK SHADER-------------
 
 	Shader ourShader("Vertex.vert", "Fragment.frag");
@@ -81,42 +72,41 @@ int main()
 	//----------------UNIFORMS-------------
 	
 	transfromUni = glGetUniformLocation(ourShader.ID, "transform");
-	MousePosUni = glGetUniformLocation(ourShader.ID, "MousePos");
 	textureUni = glGetUniformLocation(ourShader.ID, "ourTexture");
 
 	//----------------GENERATE TEXTURE---------------
+#pragma region texture
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load and generate the texture
 
 
-	//unsigned int texture;
-	//glGenTextures(1, &texture);
-	//glBindTexture(GL_TEXTURE_2D, texture);
-	//// set the texture wrapping/filtering options (on the currently bound texture object)
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//// load and generate the texture
 
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load("textures\\emerald.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
 
+	stbi_image_free(data);
+	glUniform1i(textureUni, 0);
 
-	//int width, height, nrChannels;
-	//unsigned char* data = stbi_load("textures\\emerald.png", &width, &height, &nrChannels, 0);
-	//if (data)
-	//{
-	//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	//	glGenerateMipmap(GL_TEXTURE_2D);
-	//}
-	//else
-	//{
-	//	std::cout << "Failed to load texture" << std::endl;
-	//}
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
-	//stbi_image_free(data);
-	//glUniform1i(textureUni, 0);
-
-
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+#pragma endregion initialize Texture
 	//-------------------------------
 
 	glEnable(GL_DEPTH_TEST);
@@ -124,12 +114,12 @@ int main()
 
 	glm::mat4 transformMatrix(1.0f);
 
+	
 	glm::mat4 viewMatrix(1.0f);
-	viewMatrix = glm::translate(viewMatrix, glm::vec3(0.0f, 0.0f, 5.0f));
-	glm::mat4 projectionMatrix= glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-	transformMatrix = projectionMatrix * viewMatrix;
+	viewMatrix = glm::lookAt(glm::vec3(1.0f, 1.0f, 5.0f), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 projectionMatrix= glm::perspective(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
+	transformMatrix = projectionMatrix * viewMatrix ;
 
-	glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(transformMatrix));
 
 	//projection view model
 
@@ -140,6 +130,9 @@ int main()
 
 		processInput(window);
 
+		glm::vec3 translation(0.0f, 0.02f, 0.0f);
+		cb.moveObject(&translation);
+		glUniformMatrix4fv(transfromUni, 1, GL_FALSE, glm::value_ptr(transformMatrix * (*cb.modelMatrix)));
 		cb.draw();
 
 		glfwSwapBuffers(window);

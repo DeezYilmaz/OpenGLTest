@@ -1,6 +1,8 @@
 #include "Cube.h"
-#include "OpenGL_Libraries/Include/glad/glad.h"
-#include "OpenGL_Libraries/Include/glfw3.h"
+#include "glad/glad.h"
+#include "glfw3.h"
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
 Cube::Cube() {
@@ -47,9 +49,9 @@ Cube::Cube() {
 	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
-	
+	modelMatrix = std::make_shared<glm::mat4>(1.0f);
 	bindableList.push_back(std::make_shared<VertexBuffer>(vertices,sizeof(vertices) , std::vector<int>{ 3,2 }));
-	
+
 }
 void Cube::draw() {
 
@@ -59,3 +61,10 @@ void Cube::draw() {
 	
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
+
+void Cube::moveObject(glm::vec3 *translationVector)
+{
+	*modelMatrix = glm::translate(*modelMatrix,*translationVector);
+}
+
+

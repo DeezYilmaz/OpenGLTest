@@ -1,7 +1,7 @@
 #include "VertexBuffer.h"
 #include <iostream>
-#include "OpenGL_Libraries/Include/glad/glad.h"
-#include "OpenGL_Libraries/Include/glfw3.h"
+#include "glad/glad.h"
+#include "glfw3.h"
 
 VertexBuffer::VertexBuffer(const float *vertices,int buffersize, std::vector<int> attributeList)
 {
@@ -13,11 +13,7 @@ VertexBuffer::VertexBuffer(const float *vertices,int buffersize, std::vector<int
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, buffersize, vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	//assignVertexAttributes(attributeList);
+	assignVertexAttributes(attributeList);
 }
 
 VertexBuffer::~VertexBuffer() {
@@ -34,7 +30,7 @@ void VertexBuffer::bind()
 }
 
 void VertexBuffer::assignVertexAttributes(std::vector<int> attributeList ) {
-	/*int sum = 0;
+	int sum = 0;
 
 	for (size_t i = 0; i < attributeList.size(); i++)
 	{
@@ -43,9 +39,9 @@ void VertexBuffer::assignVertexAttributes(std::vector<int> attributeList ) {
 	int currentSum = 0;
 	for (size_t i = 0; i < attributeList.size(); i++)
 	{
-		glVertexAttribPointer(i, attributeList[i], GL_FLOAT, GL_FALSE, sum * sizeof(float), (void*)currentSum);
+		glVertexAttribPointer(i, attributeList[i], GL_FLOAT, GL_FALSE, sum * sizeof(float), (void*)(currentSum*sizeof(float)));
 		currentSum += attributeList[i];
 		glEnableVertexAttribArray(i);
-	}*/
+	}
 
 }

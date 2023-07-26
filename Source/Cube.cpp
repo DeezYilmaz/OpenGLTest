@@ -49,6 +49,7 @@ Cube::Cube() {
 	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+
 	modelMatrix = std::make_shared<glm::mat4>(1.0f);
 	bindableList.push_back(std::make_shared<VertexBuffer>(vertices,sizeof(vertices) , std::vector<int>{ 3,2 }));
 
@@ -58,10 +59,14 @@ void Cube::draw() {
 	for (int i = 0; i < bindableList.size();i++ ) {
 		bindableList[i]->bind();
 	}
-	
+
+	glUniformMatrix4fv(modelUniformLocation, 1, GL_FALSE, glm::value_ptr(*modelMatrix));
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
+void Cube::setUniforms(int modelUniform) {
+	modelUniformLocation = modelUniform;
+}
 void Cube::moveObject(glm::vec3 *translationVector)
 {
 	*modelMatrix = glm::translate(*modelMatrix,*translationVector);

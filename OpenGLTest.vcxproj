@@ -306,6 +306,7 @@
     <Image Include="textures\emerald.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\camera.h" />
     <ClInclude Include="OpenGL_Libraries\glm\glm\common.hpp" />
     <ClInclude Include="OpenGL_Libraries\glm\glm\detail\compute_common.hpp" />
     <ClInclude Include="OpenGL_Libraries\glm\glm\detail\compute_vector_relational.hpp" />
